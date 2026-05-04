@@ -1,5 +1,5 @@
 let fileData = "";
-const BACKEND_URL = "https://agent-backend-1-bys8.onrender.com/"; // Change this after Render deployment
+const BACKEND_URL = "https://agent-backend-1-bys8.onrender.com"; // Change this after Render deployment
 
 // Read file content locally
 document.getElementById('file-picker').addEventListener('change', (e) => {
