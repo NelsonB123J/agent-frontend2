@@ -1,5 +1,5 @@
 let fileData = "";
-const BACKEND_URL = "https://agent-backend-jjxb.onrender.com/"; // Change this after Render deployment
+const BACKEND_URL = "https://agent-backend-1-bys8.onrender.com/"; // Change this after Render deployment
 
 // Read file content locally
 document.getElementById('file-picker').addEventListener('change', (e) => {
@@ -23,7 +23,9 @@ async function sendToAgent() {
             body: JSON.stringify({ message: input.value, fileContent: fileData })
         });
         const data = await res.json();
-        chatWindow.innerHTML += `<div class="ai-msg"><b>AI:</b> ${data.response}</div>`;
+        chatWindow.innerHTML += `<div class="ai-msg"><b>AI:</b> ${(data.response)}</div>`;
+        console.log(data.response);
+        
     } catch (err) {
         chatWindow.innerHTML += `<div class="error">Error: Could not reach agent.</div>`;
     }
