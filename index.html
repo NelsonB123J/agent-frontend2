@@ -201,11 +201,11 @@
 
                 // Add AI message
                 chatWindow.innerHTML += `<div class="chat-msg ai-msg"><b>NelsonAI:</b> ${data.response}</div>`;
-                console.log(data.response);
 
             } catch (err) {
                 // Add error message
                 chatWindow.innerHTML += `<div class="chat-msg error">Error: Could not reach agent.</div>`;
+                console.log(err);
             }
 
             // Scroll to the bottom again
