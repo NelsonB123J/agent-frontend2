@@ -200,6 +200,7 @@
                 const data = await res.json();
 
                 // Add AI message
+                console.log(data);
                 chatWindow.innerHTML += `<div class="chat-msg ai-msg"><b>NelsonAI:</b> ${data.response}</div>`;
 
             } catch (err) {
