@@ -3,22 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agent</title>
-    <link rel="stylesheet" href="style.css">
+    <title>NelsonAI</title>
+    <style>
+        /* CSS Styles */
+        :root {
+            --primary-color: #4169E1; /* Royal Blue */
+            --secondary-color: #f4f4f9;
+            --text-color: #333;
+            --bg-color: #fff;
+            --border-radius: 10px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--secondary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--bg-color);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            height: 90vh; /* Set a height to allow scrolling in chat */
+            overflow: hidden;
+        }
+
+        h1 {
+            background-color: var(--primary-color);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        #chat-window {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Message Styling */
+        .chat-msg {
+            margin-bottom: 15px;
+            max-width: 80%;
+            padding: 10px;
+            border-radius: var(--border-radius);
+        }
+
+        .user-msg {
+            background-color: #e0f0ff;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .ai-msg {
+            background-color: #e6e6e6;
+            align-self: flex-start;
+        }
+
+        .error {
+            color: #d9534f;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* Controls Section */
+        .controls {
+            padding: 15px;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3658b8; /* Darker Royal Blue */
+        }
+
+        /* Style the hidden file input */
+        #file-picker {
+            display: none;
+        }
+
+        .file-picker-label {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #eee;
+            color: #555;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .file-picker-label:hover {
+            background-color: #ddd;
+        }
+
+        /* Media Query for larger screens */
+        @media (min-width: 768px) {
+            .container {
+                height: 80vh; /* Allow more height on larger screens */
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
-<body style= "background-color: red;">
+<body>
     <div class="container">
-        <h1>AI Research Agent</h1>
-        <div id="chat-window"></div>
-        
+        <h1>NelsonAI</h1>
+        <div id="chat-window">
+            </div>
+
         <div class="controls">
-            <input type="file" id="file-picker" accept=".txt,.md">
+            <div>
+                <label for="file-picker" class="file-picker-label">Choose File</label>
+                <input type="file" id="file-picker" accept=".txt,.md">
+            </div>
             <div class="chat-input-row">
                 <input type="text" id="user-input" placeholder="Ask a question or search the web...">
                 <button onclick="sendToAgent()">Send</button>
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // JavaScript Code
+        let fileData = "";
+        const BACKEND_URL = "https://agent-backend-1-bys8.onrender.com";
+
+        document.getElementById('file-picker').addEventListener('change', (e) => {
+            const reader = new FileReader();
+            reader.onload = (event) => { fileData = event.target.result; };
+            if (e.target.files.length > 0) {
+                reader.readAsText(e.target.files[0]);
+                // Option: Update label to show file name
+                document.querySelector('.file-picker-label').innerText = e.target.files[0].name;
+            }
+        });
+
+        async function sendToAgent() {
+            const input = document.getElementById('user-input');
+            const chatWindow = document.getElementById('chat-window');
+
+            if (!input.value) return;
+
+            // Add user message
+            chatWindow.innerHTML += `<div class="chat-msg user-msg"><b>You:</b> ${input.value}</div>`;
+            input.value = ""; // Clear input
+            
+            // Scroll to the bottom
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: input.value, fileContent: fileData })
+                });
+
+                const data = await res.json();
+
+                // Add AI message
+                chatWindow.innerHTML += `<div class="chat-msg ai-msg"><b>NelsonAI:</b> ${data.response}</div>`;
+                console.log(data.response);
+
+            } catch (err) {
+                // Add error message
+                chatWindow.innerHTML += `<div class="chat-msg error">Error: Could not reach agent.</div>`;
+            }
+
+            // Scroll to the bottom again
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    </script>
 </body>
 </html>
